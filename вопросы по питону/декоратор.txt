@@ -1,0 +1,45 @@
+def makebold(fn):
+    def wrapped():
+        return "<b>" + fn() + "</b>"
+
+    return wrapped
+
+@makebold
+def hello():
+    return "hello habr"
+
+
+print(hello())
+
+либо
+
+def makebold(fn):
+    def wrapped():
+        return "<b>" + fn() + "</b>"
+    return wrapped
+
+def hello():
+    return "hello habr"
+
+hello= makebold(hello)
+
+print(hello())
+
+Итак, что же это такое? Для того, чтобы понять, как работают декораторы, в первую очередь следует вспомнить, что функции в python являются объектами, соответственно, их можно возвращать из другой функции или передавать в качестве аргумента. Также следует помнить, что функция в python может быть определена и внутри другой функции.
+
+Вспомнив это, можно смело переходить к декораторам. Декораторы — это, по сути, "обёртки", которые дают нам возможность изменить поведение функции, не изменяя её код.
+
+
+декоратор с параметрами
+
+def summa(fn):
+    def wrapped(a,b):
+        return "сумма= " + fn(a,b)
+
+    return wrapped
+
+@summa
+def fn(a,b):
+    return f"{a+b}"
+
+print(fn(4,6))

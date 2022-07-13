@@ -1,0 +1,106 @@
+									Additional module attributes
+. A Python module is a file that has a .py extension, and a Python package is any folder that has modules inside it (or, in Python 2, a folder that contains an __init__.py file).
+
+
+1.__name__ Attribute
+
+The __name__ attribute returns the name of the module. By default, the name of the file (excluding the extension .py) is the value of __name__attribute.
+
+>>> import math
+>>> math.__name__
+'math'
+
+However, this can be modified by assigning different strings to this attribute. Change hello.py as shown below.
+
+def SayHello(name):
+    print ("Hi {}! How are you?".format(name))
+__name__="SayHello"
+
+2.__doc__ Attribute
+The __doc__ attribute denotes the documentation string (docstring) line written in a module code.
+
+>>> import math  
+>>> math.__doc__ 
+'This module is always available.  It provides access to the mathematical functions defined by the C standard.'
+
+3.__file__ Attribute
+__file__ is an optional attribute which holds the name and path of the module file from which it is loaded(у библиотек написаных на си это не работает).
+
+>>> import io
+>>> io.__file__
+'C:\\python37\\lib\\io.py'
+
+4.__dict__ Attribute
+The __dict__ attribute will return a dictionary object of module attributes, functions and other definitions and their respective values.
+
+>>> import math
+>>> math.__dict__
+{'__name__': 'math', '__doc__': 'This module is always available.  It provides a
+ccess to the\nmathematical functions defined by the C standard.', '__package__':
+ '', '__loader__': и т.д.
+
+
+ 									Relative, absolute path
+
+ 											Absolute
+An absolute import specifies the resource to be imported using its full path from the project’s root folder.
+
+└── project
+    ├── package1
+    │   ├── module1.py
+    │   └── module2.py
+    └── package2
+        ├── __init__.py
+        ├── module3.py
+        ├── module4.py
+        └── subpackage1
+            └── module5.py
+
+from package1 import module1
+from package1.module2 import function1
+from package2 import class1
+from package2.subpackage1.module5 import function2
+
+									Pros and Cons
+Absolute imports are preferred because they are quite clear and straightforward. It is easy to tell exactly where the imported resource is, just by looking at the statement. Additionally, absolute imports remain valid even if the current location of the import statement changes. In fact, PEP 8 explicitly recommends absolute imports.
+
+Иногда абсолютный импорт может быть слишком большим и громоздким
+
+										Relative Imports
+A relative import specifies the resource to be imported relative to the current location—that is, the location where the import statement is. There are two types of relative imports: implicit(неявный) and explicit(явный). Implicit relative imports have been deprecated in Python 3.
+
+The syntax of a relative import depends on the current location as well as the location of the module, package, or object to be imported. Here are a few examples of relative imports:
+
+from .some_module import some_class
+from ..some_package import some_function
+from . import some_class
+
+You can see that there is at least one dot in each import statement above. Relative imports make use of dot notation to specify location.
+
+A single dot means that the module or package referenced is in the same directory as the current location. Two dots mean that it is in the parent directory of the current location—that is, the directory above. Three dots mean that it is in the grandparent directory, and so on. This will probably be familiar to you if you use a Unix-like operating system!
+												
+
+									Pros and Cons
+
+One clear advantage of relative imports is that they are quite succinct. Depending on the current location, they can turn the ridiculously long import statement you saw earlier to something as simple as this:
+
+Unfortunately, relative imports can be messy, particularly for shared projects where directory structure is likely to change. Relative imports are also not as readable as absolute ones, and it’s not easy to tell the location of the imported resources.
+
+
+									Изменение пути поиска модуля
+sys.path
+Python imports work by searching the directories listed in sys.path
+sys.path is populated using the current working directory, followed by directories listed in your PYTHONPATH environment variable, followed by installation-dependent default paths, which are controlled by the site module.
+Assuming your PYTHONPATH environment variable is not set, sys.path will consist of the current working directory plus any manipulations made to it by the site module.
+The 'site' module is automatically imported when you start Python
+
+
+sys.path.append(home_dir)
+										
+
+										Как пайтон ищет пакеты
+
+The first thing Python will do is look up the name abc in 'sys.modules'. This is a cache of all modules that have been previously imported.
+
+If the name isn’t found in the module cache, Python will proceed to search through a list of built-in modules. These are modules that come pre-installed with Python and can be found in the Python Standard Library. If the name still isn’t found in the built-in modules, Python then searches for it in a list of directories defined by sys.path. This list usually includes the current directory, which is searched first.
+If the name is never found, you’ll get a ModuleNotFoundError. You can find out more about imports in the Python documentation here!

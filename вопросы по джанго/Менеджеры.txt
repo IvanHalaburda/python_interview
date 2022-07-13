@@ -1,0 +1,102 @@
+									Менеджеры
+Имя менеджера
+По умолчанию Django добавляет Manager с именем objects для каждого класса модели. Однако, если вы хотите использовать objects, как имя поля, или хотите использовать название отличное от objects для Manager, вы можете переименовать его для модели. Чтобы переименовать Manager добавьте в класс атрибут, значение которого экземпляр models.Manager(). Например:
+
+from django.db import models
+
+class Person(models.Model):
+    #...
+    people = models.Manager()
+Обращение к Person.objects вызовет исключение AttributeError, в то время как Person.people.all() вернет список всех объектов Person.
+
+
+Для получения объектов из базы данных, создается QuerySet через Manager модели.
+
+QuerySet представляет выборку объектов из базы данных. Он может не содержать, или содержать один или несколько фильтров – критерии для ограничения выборки по определенным параметрам. В терминах SQL, QuerySet - это оператор SELECT, а фильтры - условия такие, как WHERE или LIMIT.
+
+Вы получаете QuerySet используя Manager. Каждая модель содержит как минимум один Manager, и он называется objects по умолчанию.
+
+Методы которые можно использовать:  all(), get(), filter() и exclude()
+
+									Кастомные менеджеры
+
+Вы можете использовать собственный менеджер создав его через наследование от основного класса Manager и добавив его в модель.
+
+Есть две причины почему вам может понадобиться изменить Manager: добавить дополнительные методы, и/или изменить базовый QuerySet, который возвращает Manager.
+
+Методы Manager могут возвращать что угодно. И это не обязательно должен быть QuerySet.
+
+Например, этот Manager имеет метод with_counts(), который возвращает список всех объектов OpinionPoll, каждый из которых содержит дополнительный атрибут num_responses с результатом агрегации:
+
+from django.db import models
+
+class PollManager(models.Manager):
+    def with_counts(self):
+        from django.db import connection
+        cursor = connection.cursor()
+        cursor.execute("""
+            SELECT p.id, p.question, p.poll_date, COUNT(*)
+            FROM polls_opinionpoll p, polls_response r
+            WHERE p.id = r.poll_id
+            GROUP BY p.id, p.question, p.poll_date
+            ORDER BY p.poll_date DESC""")
+        result_list = []
+        for row in cursor.fetchall():
+            p = self.model(id=row[0], question=row[1], poll_date=row[2])
+            p.num_responses = row[3]
+            result_list.append(p)
+        return result_list
+
+class OpinionPoll(models.Model):
+    question = models.CharField(max_length=200)
+    poll_date = models.DateField()
+    objects = PollManager()
+
+class Response(models.Model):
+    poll = models.ForeignKey(OpinionPoll)
+    person_name = models.CharField(max_length=50)
+    response = models.TextField()
+
+Вы можете использовать OpinionPoll.objects.with_counts(), чтобы получить список объектов OpinionPoll с атрибутом num_responses.
+
+
+Вы можете изменить базовый QuerySet, переопределив метод Manager.get_queryset(). Метод get_queryset() должен возвращать QuerySet с необходимыми вам свойствами.
+
+Например, следующая модель содержит два менеджера – один возвращает все книги, второй - только книги Roald Dahl:
+
+# First, define the Manager subclass.
+class DahlBookManager(models.Manager):
+    def get_queryset(self):
+        return super(DahlBookManager, self).get_queryset().filter(author='Roald Dahl')
+
+# Then hook it into the Book model explicitly.
+class Book(models.Model):
+    title = models.CharField(max_length=100)
+    author = models.CharField(max_length=50)
+
+    objects = models.Manager() # The default manager.
+    dahl_objects = DahlBookManager() # The Dahl-specific manager.
+Для этой простой модели, Book.objects.all() вернет все книги из базы данных, в то время как Book.dahl_objects.all() вернет книги Roald Dahl.
+
+Конечно же, т.к. get_queryset() возвращает экземпляр QuerySet, вы можете использовать filter(), exclude() и остальные методы QuerySet. Таким образом, следующие операторы будут работать:
+
+Book.dahl_objects.all()
+Book.dahl_objects.filter(title='Matilda')
+Book.dahl_objects.count()
+
+
+						Опасность использования кастомного менеджера
+
+1. Менеджеры из не абстрактной базовой модели не наследуются дочерними.
+
+2. Обратите внимание, хотя вы и можете определить собственный менеджер для абстрактной модели, вы не можете вызывать методы используя абстрактную модель. То есть:
+
+ClassA.objects.do_something()
+будет работать, но:
+
+AbstractBase.objects.do_something()
+вызовет исключение. Менеджеры инкапсулируют логику работы с коллекцией объектов. Так как мы не можем создать коллекцию абстрактных объектов, нет смысла использовать менеджер для них. Если вам нужен функционал связанный с абстрактной моделью, добавьте его в staticmethod или classmethod.
+
+3. Всегда должно работать копирование экземпляра менеджера
+
+	Django выполняет копирование экземпляра менеджера при определенных запросах. Если ваш менеджер нельзя скопировать, эти запросы перестанут работать.

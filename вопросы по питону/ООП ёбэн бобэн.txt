@@ -1,0 +1,164 @@
+Объектно-ориентированное программирование подразумевает повторное использование. Компьютерная программа написанная в форме объектов и классов может быть использована снова в других проектах без повторения кода;
+Использование модулярного подхода в объектно-ориентированном программировании позволяет получить читаемый и гибкий код;
+В объектно-ориентированном программировании каждый класс имеет определенную задачу. Если ошибка возникнет в одной части кода, вы можете исправить ее локально, без необходимости вмешиваться в другие части кода;
+Инкапсуляция данных (которую мы рассмотрим дальше в статье) вносит дополнительный уровень безопасности в разрабатываемую программу с использованием объектно-ориентированного подхода;
+
+
+
+Хотя объектно-ориентированное программирование обладает рядом преимуществ, оно также содержит определенные недостатки, некоторые из них находятся в списке ниже:
+
+Для создания объектов необходимо иметь подробное представление о разрабатываемом программном обеспечении;
+Не каждый аспект программного обеспечения является лучшим решением для реализации в качестве объекта. Для новичков может быть тяжело прочертить линию в золотой середине;
+С тем, как вы вносите все новые и новые классы в код, размер и сложность программы растет в геометрической прогрессии;
+
+
+Наследование:
+Основная идея наследования в объектно-ориентированном программировании заключается в том, что класс может наследовать характеристики другого класса. Класс, который наследует другой класс, называется дочерним классом или производным классом, и класс, который дает наследие, называется родительским, или основным
+
+
+
+Полиморфизм
+Термин полиморфизм буквально означает наличие нескольких форм. В контексте объектно-ориентированного программирования, полиморфизм означает способность объекта вести себя по-разному.
+
+Полиморфизм в программировании реализуется через перегрузку метода, либо через его переопределение.
+
+Перегрузка метода(в пайтон перегрузки нет, это просто типа перегрузка)
+Перегрузка метода относится к свойству метода вести себя по-разному, в зависимости от количества или типа параметров. Взглянем на очень простой пример перегрузки метода. Выполним следующий скрипт:
+
+Python
+# создаем класс Car
+class Car:  
+   def start(self, a, b=None):
+        if b is not None:
+            print (a + b)
+        else:
+            print (a)
+
+Переопределение метода
+Переопределение метода относится к наличию метода с одинаковым названием в дочернем и родительском классах. Определение метода отличается в родительском и дочернем классах, но название остается тем же. Давайте посмотрим на простой пример переопределения метода в Python.
+
+Python
+# создание класса Vehicle
+class Vehicle:  
+    def print_details(self):
+        print("Это родительский метод из класса Vehicle")
+ 
+# создание класса, который наследует Vehicle
+class Car(Vehicle):  
+    def print_details(self):
+        print("Это дочерний метод из класса Car")
+
+
+
+Инкапсуляция
+Инкапсуляция — это третий столп объектно-ориентированного программирования. Инкапсуляция просто означает скрытие данных. Как правило, в объектно-ориентированном программировании один класс не должен иметь прямого доступа к данным другого класса. Вместо этого, доступ должен контролироваться через методы класса.
+
+Давайте взглянем на публичные, приватные и защищенные переменные в действии. Выполните следующий скрипт:
+
+Python
+class Car:  
+    def __init__(self):
+        print ("Двигатель заведен")
+        self.name = "corolla"  #public
+        self.__make = "toyota" #private
+        self._model = 1999	#protected
+
+еще варики для инкапсуляции:
+
+Но у меня что-то не работает
+from accessify import protected
+
+    @protected # либо private
+    def start_engine(self):
+        return "Engine's sound."
+
+Но если очень сильно хотите достучаться до private атрибута, то можно обратиться к нему как:
+class A:
+	__some_val = 0
+
+a = A()
+
+a._A__some_val
+
+
+
+
+@staticmethod и @classmethod
+
+
+Static Method
+If we don’t want to use class variables or instance variables, we can use static methods. A static method can be called without the object of the class. We use the decorator @staticmethod to declare a static method. This method requires neither the self nor the cls reference because they are not dependent on any instance or class attribute.
+
+Example:
+class Sample:
+   
+  @staticmethod
+  def method():
+    print('This is a static method')
+ 
+Sample.method()
+#можно и с помощью объекта класса вызвать
+
+Class Method
+The class methods are bound to a class instead of the objects of the class. These methods can be called without the instance of the class. We can create class methods by either using the classmethod() method or the decorator @classmethod. Class methods accept cls as an argument indicating that the method points to the class instead of the object instance.
+
+Example:
+class Sample:
+  var = "Class Variable"
+ 
+  @classmethod
+  def method(cls):
+    print(cls.var)
+ 
+Sample.method()
+The output is:
+
+Class Variable
+
+
+В обычных методах self указывает какой именно объект класса нам нужен
+
+
+Метаклассы
+A metaclass is a class whose instances are classes. Like an "ordinary" class defines the behavior of the instances of the class, a metaclass defines the behavior of classes and their instances.
+
+Metaclasses are not supported by every object oriented programming language. Those programming language, which support metaclasses, considerably vary in way they implement them. Python is supporting them.
+
+Some programmers see metaclasses in Python as "solutions waiting or looking for a problem".
+
+There are numerous use cases for metaclasses. Just to name a few:
+
+logging and profiling
+interface checking
+registering classes at creation time
+automatically adding new methods
+automatic property creation
+proxies
+automatic resource locking/synchronization.
+
+
+Абстрактные классы:
+
+An abstract class can be considered as a blueprint for other classes. It allows you to create a set of methods that must be created within any child classes built from the abstract class. A class which contains one or more abstract methods is called an abstract class. An abstract method is a method that has a declaration but does not have an implementation.
+
+By default, Python does not provide abstract classes. Python comes with a module that provides the base for defining Abstract Base classes(ABC) and that module name is ABC. ABC works by decorating methods of the base class as abstract and then registering concrete classes as implementations of the abstract base. A method becomes abstract when decorated with the keyword @abstractmethod.
+from abc import ABC, abstractmethod
+ 
+class Polygon(ABC):
+ 
+    @abstractmethod
+    def noofsides(self):
+        pass
+ 
+class Triangle(Polygon):
+ 
+    # overriding abstract method
+    def noofsides(self):
+        print("I have 3 sides")
+ 
+
+ 
+Отличие интерфейсов от абстрактных классов:
+In general, interfaces are used only in languages that use the single-inheritance class model. In these single-inheritance languages, interfaces are typically used if any class could use a particular method or set of methods. Also in these single-inheritance languages, abstract classes are used to either have defined class variables in addition to none or more methods, or to exploit the single-inheritance model to limit the range of classes that could use a set of methods.
+
+Languages that support the multiple-inheritance model tend to use only classes or abstract base classes and not interfaces. Since Python supports multiple inheritance, it does not use interfaces and you would want to use base classes or abstract base classes.
